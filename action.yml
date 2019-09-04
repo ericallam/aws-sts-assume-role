@@ -1,10 +1,27 @@
-name: 'Node 12 Template Action'
-description: 'Get started with Node actions'
-author: 'GitHub'
+name: "AWS STS Assume Role"
+description: "GitHub Action to assume a role using STS and output the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables to use in subsequent steps"
+author: "ericallam"
 inputs:
-  myInput:
-    description: 'Input to use'
-    default: 'world'
+  accessKeyId:
+    description: "Access Key ID of the user that will assume a role"
+    required: true
+  secretAccessKey:
+    description: "Secret Access Key of the user that will assume a role"
+    required: true
+  roleArn:
+    description: "The ARN of the IAM Role to assume"
+    required: true
+  roleSessionName:
+    description: "The RoleSessionName passed to assume-role"
+    required: true
+    default: "User"
+outputs:
+  stsAccessKeyID:
+    description: "The Access Key ID of the sts session"
+  stsSecretAccessKey:
+    description: "The Secret Access Key of the sts session"
+  stsSessionToken:
+    description: "The Session Token of the sts session"
 runs:
-  using: 'node12'
-  main: 'lib/main.js'
+  using: "node12"
+  main: "lib/main.js"
