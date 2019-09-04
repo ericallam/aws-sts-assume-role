@@ -1,9 +1,37 @@
-# JavaScript Action Template
+# aws-sts-assume-role action
 
-This template offers an easy way to get started writing a JavaScript action with TypeScript compile time support, unit testing with Jest and using the GitHub Actions Toolkit.
+GitHub Action to assume a role using STS and output the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables to use in subsequent steps
 
-## Getting Started
+## Usage
 
-See the walkthrough located [here](https://github.com/actions/toolkit/blob/master/docs/javascript-action.md).
+Set the `AWS_ACCSS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` secrets for the User that will assume the role in your Github repo settings.
 
-In addition to walking your through how to create an action, it also provides strategies for versioning, releasing and referencing your actions.
+```yaml
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Assume role
+        uses: ericallam/aws-sts-assume-role@v1
+        id: assume_role
+        with:
+          accessKeyId: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secretAccessKey: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          roleArn: arn:aws:iam::11111111111:role/my-role
+          roleSessionName: ${{ github.sha }}
+      - name: Use STS credentials from assume_role
+        env:
+          AWS_ACCESS_KEY_ID: ${{ steps.assume_role.outputs.stsAccessKeyId }}
+          AWS_SECRET_ACCESS_KEY: ${{ steps.assume_role.outputs.stsSecretAccessKey }}
+          AWS_SESSION_TOKEN: ${{ steps.assume_role.outputs.stsSessionToken }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: aws sts get-caller-identity
+```
+
+By default, the session is valid for 1 hour.
